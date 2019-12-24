@@ -24,7 +24,7 @@ public class ListDemo {
      * 底层使用双向链表实现,也是线程不安全的
      *
      *
-     * 线程如何创建线程安全的 List:
+     * 如何创建线程安全的 List:
      * 1:使用集合工具类Collections的 synchronizedList把普通的List转为线程安全的List,但是不建议使用,
      * 因为它底层是返回了Collections内部的一个List实现类,这个实现类的方法仍然使用synchronized,说白了,与Vector相似
      *

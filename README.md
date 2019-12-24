@@ -171,7 +171,7 @@
       
 ###### 其实这里真不是不想写和不会写,而是AQS的机制看起来很复杂,其实还是围绕着CLH队列在转,建议各位同学直接看源码好理解,毕竟如果各位同学自己写同步器也需要自己懂才行.     
  
-====      
+  
 
 #### volatile:
      Volatile是JVM提供的轻量级的同步机制
@@ -657,7 +657,63 @@
         或多余的部分就要使用对齐填充数据补齐.
         如果Java对象大小正好是8的倍数,那么就无需对齐填充数据
         所以我说它是不固定的.　　
-      
+    
+  ## 关于java集合的一点知识
+  ### MAP
+  #### HashMap:
+   HashMap的初始化默认容量为16,扩容后为原来的2倍.
+   线程不安全.
+   HashMap在jdk1.8之前使用拉链法实现(数组+链表),jdk1.8之后使用 数组+链表/红黑树,当链表节点数量
+   大于阈值(默认为8)时,将链表转为红黑树,小于6时又将红黑树转为链表.
+   HashMap的扩容根据 threshold 来决定,当HashMap的size>=threshold时,就准备扩容.threshold是
+   capacity * loadFactory的结果.
+   loadFactory是加载因子,loadFactory越趋近于1,那么数组存放的元素就越多,访问效率就较低
+   loadFactory越趋近于0,那么数组存放的元素就越少,数组的使用率就越低.建议使用默认的0.75
+  
+  #### HashTable:
+   与HashMap相似,但HashTable是线程安全,HashTable的同步基于synchronized,所以它的效率并不高.
+    HashTable不允许null-key和null-value,而HashMap支持一个null-key,多个null-value. Hash
+    HashTable的默认初始化容量为11,扩容后为原来的2倍+1.
+    HashTable不像HashMap有将链表转红黑树的机制,它底层仍然采用拉链法
+  #### TreeMap:
+   红黑树实现,不允许null,允许自然排序Comparable和比较器Comparator
+  #### 线程安全的Map:
+  1: Collections仍然提供了 SynchronizedMap,底层还是基于 synchronized,不建议使用个
+  2: ConcurrentHashMap: 并发map,很好的支持高性能和高并发.jdk1.7之前使用分段数组+链表实现,jdk1.8后
+     使用 数组+链表/红黑树实现.
+     jdk1.7之前给每段数据加锁,当一个线程访问其中一段数据时,其他数据也能被其他线程访问,也是非常的高效
+     jdk1.8后使用数组+链表/红黑树实现,其扩容等机制与HashMap一样,但是控制并发的方法改为了CAS+synchronized
+     synchronized锁的只是链表的首节点或红黑树的首节点,这样一来,只要节点不冲突(hash不冲突),synchronized也不会触发,更加高效
+  3: ConcurrentSkipListMap : 跳表map   
+  
+  ### List
+  #### ArrayList:
+   底层使用Object数组实现,初始化容量为10,动态扩容使用Arrays.copyof增长0.5倍 +１,线程不安全
+  #### Vector:
+   线程安全的ArrayList,底层方法使用synchronized保证线程安全,因此,效率低下,不建议使用
+  #### LinkedList:
+   底层使用双向链表实现,也是线程不安全的
+  #### 如何创建线程安全的 List:
+  1:使用集合工具类Collections的 synchronizedList把普通的List转为线程安全的List,但是不建议使用,
+    因为它底层是返回了Collections内部的一个List实现类,这个实现类的方法仍然使用synchronized,说白了,与Vector相似
+  2:使用写时复制类 CopyOnWriteArrayList,此类适合读多写少的场合,它的性能比Vector好的多,
+    它的读取方法没有使用加锁操作,而是在使用add,set等修改操作的时候将原内容和要修改的内容复制到新的副本中,
+    写完后,再将副本赋予原数据
+   
+  ### Set
+   #### HashSet:
+   HashSet底层使用HashMap实现,它使用一个固定的Object作为Value,用户写的值为Key
+    HashSet是线程不安全的,允许存null,不保证对象的有序性,因为HashSet的底层使用的是HashMap
+    所以它默认的初始化容量为16
+   #### LinkedHashSet:
+   底层使用LinkedHashMap实现,LinkedHashMap是HashMap的一个子类,底层使用双向链表实现
+    但不是使用链表保存元素,它仍然使用HashMap保存元素,但链表用来维护元素插入的顺序,当遍历LinkedHashMap的时候,就
+    按照插入的顺序来遍历
+   #### TreeSet:
+    底层使用TreeMap(SortedMap,红黑树)实现,确保元素处于排序状态(根据键的自然排序 Comparable 接口或 比较器 Comparator)
+   #### 线程安全的Set:
+   1: 和List一样Collections仍然提供了synchronizedSet
+   2: CopyOnWriteArraySet,值得一提的是:CopyOnWriteArraySet使用CopyOnWriteArrayList实现   
               
     
       
