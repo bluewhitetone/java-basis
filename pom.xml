@@ -5,8 +5,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.YangGuang19</groupId>
-    <artifactId>juc-jvm</artifactId>
+    <artifactId>java-basis</artifactId>
     <version>1.0.0</version>
 
 
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <target>11</target>
+                    <source>11</source>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
